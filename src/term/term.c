@@ -10,9 +10,10 @@ void disptbuff(struct term_window *self) {
   struct winsize ws = (self->ws)(self);
   size_t cols = ws.ws_col;
   size_t rows = ws.ws_row;
-  
   size_t iter = 0;
   size_t bufflen = self->tb->len;
+  size_t screen_left = cols * rows;
+
   for(;iter < bufflen;iter++) {
     if(__builtin_expect((iter % cols != 0), 1)) {
       write(1, (self->tb->buff) + iter, 1);
@@ -20,7 +21,6 @@ void disptbuff(struct term_window *self) {
       write(1, "\n", 1);
     }
   }
-  size_t screen_left = cols * rows;
   for(;iter < screen_left; iter++) {
     if(__builtin_expect((iter % cols != 0), 1)) {
       write(1, " ", 1);
@@ -70,7 +70,6 @@ void ke_wait(const size_t cycles) {
 
 int ke_run(struct term_window *win, char *filename) {
   while(1) {
-    //printf("%d\n", ((win->ws)(win)).ws_col);
     (win->display)(win);
     usleep(700000);
   }
