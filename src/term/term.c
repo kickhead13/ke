@@ -1,6 +1,6 @@
 #include "term.h"
 #include <stdlib.h>
-
+#include <unistd.h>
 
 size_t buff_len(struct tbuff *self) {
   return (size_t)(sizeof(self->buff)/sizeof(char));
@@ -14,10 +14,18 @@ void disptbuff(struct term_window *self) {
   size_t iter = 0;
   size_t bufflen = self->tb->len;
   for(;iter < bufflen;iter++) {
-    if(iter % cols) {
-      printf("%c", (self->tb->buff)[iter]);
+    if(__builtin_expect((iter % cols != 0), 1)) {
+      write(1, (self->tb->buff) + iter, 1);
     } else {
-      printf("\n");
+      write(1, "\n", 1);
+    }
+  }
+  size_t screen_left = cols * rows;
+  for(;iter < screen_left; iter++) {
+    if(__builtin_expect((iter % cols != 0), 1)) {
+      write(1, " ", 1);
+    } else {
+      write(1, "\n", 1);
     }
   }
 }
@@ -51,4 +59,20 @@ struct term_window *get_term_window() {
   win->tb = new_tbuff(100);
   win->display = disptbuff;
   return win;
+}
+
+void ke_wait(const size_t cycles) {
+  for(size_t clock = 0; clock < cycles; clock ++) {
+    clock += 1;
+    clock -= 1;
+  }
+}
+
+int ke_run(struct term_window *win, char *filename) {
+  while(1) {
+    //printf("%d\n", ((win->ws)(win)).ws_col);
+    (win->display)(win);
+    sleep(1);
+  }
+  return 0;
 }
