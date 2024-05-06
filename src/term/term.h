@@ -24,8 +24,6 @@ void disptbuff(struct term_window*);
 struct winsize get_winsize(struct term_window *);
 struct term_window *get_term_window();
 int ke_run(struct term_window *, char *);
-
-#define KE_WAIT(cycles)  for(size_t clock = 0; clock < (cycles); clock++){ clock += 1; clock -= 1;}
-
+void ke_wait(const size_t);
 
 #endif // !KE_TERM_H

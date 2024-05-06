@@ -72,7 +72,7 @@ int ke_run(struct term_window *win, char *filename) {
   while(1) {
     //printf("%d\n", ((win->ws)(win)).ws_col);
     (win->display)(win);
-    sleep(1);
+    usleep(700000);
   }
   return 0;
 }
