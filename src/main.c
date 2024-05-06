@@ -6,7 +6,7 @@
 int main(size_t argc, char **argv) {
 
   struct term_window *win = get_term_window();
-  tbuff_fill_test(win->tb, 'a'); 
+  //tbuff_fill_test(win->tb, 'a'); 
   printf("%d", win->tb->len);
 
   const char *fparam[2] = {"-f", "--file"};

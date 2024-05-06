@@ -5,6 +5,10 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 
+struct tparams {
+  unsigned int disp_line_count:1;
+};
+
 struct tbuff {
   char *buff;
   size_t len;
@@ -18,6 +22,8 @@ struct term_window {
   struct winsize (*ws)(struct term_window*);
   void (*display)(struct term_window*);
   struct tbuff *tb;
+  struct tparams *tp;
+  size_t lastline;
 };
 
 void disptbuff(struct term_window*);
