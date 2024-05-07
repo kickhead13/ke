@@ -15,8 +15,9 @@ struct tbuff {
 };
 
 size_t buff_len(struct tbuff*); 
-struct tbuff *new_tbuff(size_t);
+struct tbuff *new_tbuff(char*, size_t*);
 void tbuff_fill_test(struct tbuff *,char);
+size_t count_newlines(char *buff);
 
 struct term_window {
   struct winsize (*ws)(struct term_window*);
@@ -26,9 +27,9 @@ struct term_window {
   size_t lastline;
 };
 
-void disptbuff(struct term_window*);
+void tb_disp(struct term_window*);
 struct winsize get_winsize(struct term_window *);
-struct term_window *get_term_window();
+struct term_window *get_term_window(const char*);
 int ke_run(struct term_window *, char *);
 void ke_wait(const size_t);
 

@@ -1,4 +1,5 @@
 #include "term.h"
+#include "../fs/fs.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -7,64 +8,60 @@ size_t buff_len(struct tbuff *self) {
   return (size_t)(sizeof(self->buff)/sizeof(char));
 }
 
-void disptbuff(struct term_window *self) {
+void tb_disp(struct term_window *self) {
   struct winsize ws = (self->ws)(self);
-  size_t cols = ws.ws_col;
   size_t rows = ws.ws_row;
-  size_t iter = 0;
-  size_t bufflen = self->tb->len;
-  size_t screen_left = cols * rows;
-  size_t linec = 1;
-  size_t slinec = 0;
+  size_t line = 0;
 
-  if(self->tp->disp_line_count) {
-    char last_line_str[20], line_str[20];
-    sprintf(last_line_str, "%d", self->lastline);
-    sprintf(line_str, "%d", linec);
-    size_t lciter = 0;
-    size_t llsmls = strlen(last_line_str)-strlen(line_str);
-    for(;lciter < llsmls; lciter++) {
-      write(1, " ", 1);
-    }
-    write(1, line_str, strlen(line_str));
-    write(1, " ", 1);
+  for(;line < self->lastline && line < rows; line++) {
+    write(1, (self->tb[line]).buff, strlen((self->tb[line]).buff));
+    if(line < rows - 1) write(1, "\n", 1);
   }
-
-  for(;iter < bufflen;iter++) {
-    if(__builtin_expect((iter % cols != 0 || iter == 0), 1)) {
-      write(1, (self->tb->buff) + iter, 1);
-      if((self->tb->buff)[iter] == '\n') {
-        linec++;
-        slinec++;
-        if(linec > self->lastline) self->lastline = linec;
-        if(self->tp->disp_line_count) {
-          char last_line_str[20], line_str[20];
-          sprintf(last_line_str, "%d", self->lastline);
-          sprintf(line_str, "%d", linec);
-          size_t lciter = 0;
-          size_t llsmls = strlen(last_line_str)-strlen(line_str);
-          for(;lciter < llsmls; lciter++) {
-            write(1, " ", 1);
-          }
-          write(1, line_str, strlen(line_str));
-          write(1, " ", 1);
-        }
-      }
-    } else {
-      slinec++;
-    }
-  }
-  for(;slinec < rows; slinec++) {
-    write(1, "\n", 1);
+  for(;line < rows - 1; line++){
+    write(1, "-\n", 2);
   }
 }
 
-struct tbuff *new_tbuff(size_t len) {
+size_t count_newlines(char *buff) {
+  size_t iter = 0, count = 0, len = strlen(buff);
+  for(;iter < len; iter++) {
+    if(buff[iter] == '\n') count += 1;
+  }
+  return count;
+  if(buff[len-1] == '\n') {
+    count -= 1;
+    buff[len-1] = '\0';
+  }
+  return count;
+}
+
+size_t chars_till_newline(char *buff) {
+  size_t iter = 0, count = 0, len = strlen(buff);
+  for(;iter < len; iter++) {
+    if(buff[iter] == '\n') return count;
+    count += 1;
+  }
+  return count;
+}
+
+struct tbuff *new_tbuff(char *buff, size_t *lastline) {
+  size_t lines = count_newlines(buff) + 1;
+  *lastline = lines;
   struct tbuff *tb =
-    (struct tbuff*)malloc(sizeof(struct tbuff));
-  tb->len = len;
-  tb->buff = (char *)malloc(len * sizeof(char));
-  strcpy(tb->buff, "testjdsfkjgdsfghkdsfghkdshfgkjdhsfgkjdhs\ntest\ntest");
+    (struct tbuff*)malloc(lines * sizeof(struct tbuff));
+  char *aux = buff;
+  size_t offset = -1;
+  for(size_t iter = 0; iter < lines; iter++) {
+    aux = aux + (offset + 1);
+    offset = chars_till_newline(aux);
+    tb[iter].len = offset;
+    tb[iter].buff =
+      (char *)malloc((offset+1)*sizeof(char));
+    for(size_t bter = 0; bter < offset; bter++) {
+      (tb[iter].buff)[bter] = aux[bter];
+    }
+    (tb[iter].buff)[offset] = '\0';
+  }
   return tb;
 }
 
@@ -89,13 +86,13 @@ struct tparams *get_tp() {
   return ret;
 }
 
-struct term_window *get_term_window() {
+struct term_window *get_term_window(const char *filename) {
   struct term_window *win =
     (struct term_window*)malloc(sizeof(struct term_window));
   win->ws = get_winsize;
-  win->tb = new_tbuff(100);
-  win->display = disptbuff;
-  win->lastline = 0;
+  size_t tbter = 0;
+  win->tb = new_tbuff(file_contents(filename), &(win->lastline));
+  win->display = tb_disp;//disptbuff;
   win->tp = get_tp();
   return win;
 }
