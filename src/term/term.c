@@ -3,21 +3,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
-size_t buff_len(struct tbuff *self) {
-  return (size_t)(sizeof(self->buff)/sizeof(char));
-}
+#include "cursor.h"
 
 void tb_disp(struct term_window *self) {
+  ke_term_clear();
+  ke_cursor_goto(0,0);
+ 
   struct winsize ws = (self->ws)(self);
   size_t rows = ws.ws_row;
   size_t line = 0;
 
-  for(;line < self->lastline && line < rows; line++) {
-    write(1, (self->tb[line]).buff, strlen((self->tb[line]).buff));
-    if(line < rows - 1) write(1, "\n", 1);
+  struct ke_2xll_node *head = self->tb->head;
+  while(head && line < rows) {
+    write(1, head->line, strlen(head->line));
+    head = head->next;
+    line++;
+    if(head) write(1, "\n", 1);
   }
-  for(;line < rows - 1; line++){
+  for(;line < rows; line++){
     write(1, "-\n", 2);
   }
 }
@@ -44,33 +47,26 @@ size_t chars_till_newline(char *buff) {
   return count;
 }
 
-struct tbuff *new_tbuff(char *buff, size_t *lastline) {
-  size_t lines = count_newlines(buff) + 1;
-  *lastline = lines;
-  struct tbuff *tb =
-    (struct tbuff*)malloc(lines * sizeof(struct tbuff));
+struct ke_2x_linked_list *new_tbllbuff(char *buff, size_t *lastline) {
+  struct ke_2x_linked_list *list = 
+    (struct ke_2x_linked_list*)malloc(sizeof(struct ke_2x_linked_list));
+  list->head = NULL;
+  list->tail = NULL;
+  list->len = 0;
+
+  size_t iter = 0, len = strlen(buff), lines = count_newlines(buff) + 1;
   char *aux = buff;
   size_t offset = -1;
-  for(size_t iter = 0; iter < lines; iter++) {
+  for(;iter < lines; iter++) {
     aux = aux + (offset + 1);
     offset = chars_till_newline(aux);
-    tb[iter].len = offset;
-    tb[iter].buff =
-      (char *)malloc((offset+1)*sizeof(char));
-    for(size_t bter = 0; bter < offset; bter++) {
-      (tb[iter].buff)[bter] = aux[bter];
-    }
-    (tb[iter].buff)[offset] = '\0';
+    aux[offset] = '\0';
+    insert_ke_2xll(list->len, aux, list);
   }
-  return tb;
-}
 
-void tbuff_fill_test(struct tbuff *tb, char c) {
-  size_t iter = 0;
-  size_t blen = tb->len;
-  for(;iter < blen;iter++){
-    tb->buff[iter] = c;
-  }
+  *lastline = list->len;
+  free(buff);
+  return list;
 }
 
 struct winsize get_winsize(struct term_window *self) {
@@ -91,7 +87,7 @@ struct term_window *get_term_window(const char *filename) {
     (struct term_window*)malloc(sizeof(struct term_window));
   win->ws = get_winsize;
   size_t tbter = 0;
-  win->tb = new_tbuff(file_contents(filename), &(win->lastline));
+  win->tb = new_tbllbuff(file_contents(filename), &(win->lastline));
   win->display = tb_disp;//disptbuff;
   win->tp = get_tp();
   return win;

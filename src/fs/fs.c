@@ -25,7 +25,8 @@ char *file_contents(const char *filename) {
       comp_buff = new_buff;
       strcat(comp_buff, part_buff);
     }
+    comp_buff[buff_size] = '\0';
   }
-  printf("%s", comp_buff);
+  //printf("%s", comp_buff);
   return comp_buff;
 }
