@@ -101,10 +101,11 @@ void ke_wait(const size_t cycles) {
   }
 }
 
+#define TENTH_OF_SECOND 100000
 int ke_run(struct term_window *win, struct user *user, char *filename) {
   while(user && (user->handler)(user, win)) {
     (win->display)(win);
-    usleep(100000);
+    usleep(TENTH_OF_SECOND);
   }
   return 0;
 }
