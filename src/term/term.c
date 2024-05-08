@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "cursor.h"
+#include "../user/uinput.h"
 
 void tb_disp(struct term_window *self) {
   ke_term_clear();
@@ -100,8 +101,8 @@ void ke_wait(const size_t cycles) {
   }
 }
 
-int ke_run(struct term_window *win, char *filename) {
-  while(1) {
+int ke_run(struct term_window *win, struct user *user, char *filename) {
+  while(user && (user->handler)(user, win)) {
     (win->display)(win);
     usleep(100000);
   }

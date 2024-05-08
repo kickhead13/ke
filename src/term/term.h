@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include "tblinkedlist.h"
+#include "../user/user.h"
 
 struct tparams {
   unsigned int disp_line_count:1;
@@ -23,7 +24,7 @@ struct term_window {
 void tb_disp(struct term_window*);
 struct winsize get_winsize(struct term_window *);
 struct term_window *get_term_window(const char*);
-int ke_run(struct term_window *, char *);
+int ke_run(struct term_window *, struct user*,char *);
 void ke_wait(const size_t);
 
 #endif // !KE_TERM_H

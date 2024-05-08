@@ -11,4 +11,6 @@ gcc -o ./target/ke \
   ./src/parsers/clparsers.c \
   ./src/fs/fs.c \
   ./src/term/tblinkedlist.c \
-  ./src/term/cursor.c
+  ./src/term/cursor.c \
+  ./src/user/uinput.c \
+  ./src/user/user.c
