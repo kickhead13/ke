@@ -7,6 +7,8 @@
 #include "tblinkedlist.h"
 #include "../user/user.h"
 
+struct user;
+
 struct tparams {
   unsigned int disp_line_count:1;
 };

@@ -3,6 +3,8 @@
 #include "../term/term.h"
 #include "../term/tblinkedlist.h"
 
+struct term_window;
+
 enum ke_umode{
   COMMAND = 0,
   INSERT = 1,
@@ -10,12 +12,12 @@ enum ke_umode{
 };
 
 struct user {
-  enum ke_run_status (*handler)(struct user*, struct term_window*);
+  const enum ke_run_status (*handler)(struct user*, struct term_window*);
   enum ke_umode umode;
   struct ke_2x_linked_list *cmdb;
 };
 
-enum ke_run_status uhandler(struct user*, struct term_window*);
+const enum ke_run_status uhandler(struct user*, struct term_window*);
 struct user *get_user();
 
 #endif

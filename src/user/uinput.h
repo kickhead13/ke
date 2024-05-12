@@ -2,10 +2,11 @@
 #define KE_UINPUT_H
 
 enum uinput {
-  U_ARROW = '^[[A',
-  D_ARROW = '^[[B',
-  R_ARROW = '^[[C',
-  L_ARROW = '^[[D',
+  CURSE = 27,
+  U_ARROW = 65,
+  D_ARROW = 66,
+  R_ARROW = 67,
+  L_ARROW = 68,
   SPACE = 32,
   W_BUTTON = 87,
   A_BUTTON = 65,
