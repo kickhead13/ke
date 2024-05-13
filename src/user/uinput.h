@@ -16,7 +16,8 @@ enum uinput {
   a_BUTTON = 97,
   s_BUTTON = 115,
   d_BUTTON = 100,
-  q_BUTTON = 113
+  q_BUTTON = 113,
+  i_BUTTON = 105
 };
 
 enum ke_run_status {

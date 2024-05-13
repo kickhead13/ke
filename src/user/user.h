@@ -18,6 +18,9 @@ struct user {
 };
 
 const enum ke_run_status uhandler(struct user*, struct term_window*);
+const enum ke_run_status chandler(struct user*, struct term_window*);
+const enum ke_run_status ihandler(struct user*, struct term_window*);
+const enum ke_run_status vhandler(struct user*, struct term_window*);
 struct user *get_user();
 
 #endif
